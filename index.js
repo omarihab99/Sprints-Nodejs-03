@@ -40,7 +40,7 @@ const getData = async (currency) => {
 };
 
 const createData = async (body) => {
-  const response = await axios.post(PRODUCTS_API, JSON.parse(body)).then((response)=>{
+  const response = await axios.post(PRODUCTS_API, body).then((response)=>{
     return response.data;
   })
   return response;

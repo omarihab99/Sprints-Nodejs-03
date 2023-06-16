@@ -1,9 +1,16 @@
 const http = require('http');
 const dotenv = require("dotenv");
+const {array, number, object, string} = require("yup");
 const {getData, createData} = require("./index.js");
 dotenv.config();
 const PORT = process.env.PORT;
-
+const productSchema = object({
+    title: string().required(),
+    price: number().required().positive(),
+    description: string().required(),
+    categoryId: number().required().positive().integer(),
+    images: array(string()).required(),
+});
 
 const requestListener = async (req, res) => {
     if(req.method === 'GET') {
@@ -15,13 +22,14 @@ const requestListener = async (req, res) => {
     }
     if(req.method === 'POST'){
         let requestBody = '';
-        req.on('data', async (chunk) => {
+        req.on('data', (chunk) => {
             requestBody += chunk;
         });
         req.on('end', async ()=>{
+            const body = productSchema.validateSync(JSON.parse(requestBody),{strict:true});
             console.log('Server: Request body received');
             res.writeHead(201, { "Content-Type": "application/json" });
-            res.write(JSON.stringify(await createData(requestBody)));
+            res.write(JSON.stringify(await createData(body)));
             res.end();
         });  
     }
